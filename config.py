@@ -15,7 +15,6 @@ class Config(object):
 
     # Log file (the directory must exist)
     APPLICATION_LOG = os.path.join(BASE_DIR, 'log', 'application.log')
-    ACCESS_LOG = os.path.join(BASE_DIR, 'log', 'access.log')
 
     # Secret key for flask sessions and CSRF protection
     SECRET_KEY = "secret key that you need to change, seriously!"
