@@ -21,7 +21,7 @@ class GitlabWebHook(WebHook):
 
         event = EVENTS.get(gitlab_header, None)
         if not event:
-            raise NotImplemented('Header not understood %s' % githab_header)
+            raise NotImplemented('Header not understood %s' % gitlab_header)
 
         if event == 'note':
             if 'commit' in request.json:
