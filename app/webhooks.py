@@ -24,7 +24,7 @@ class WebHook(MethodView):
         if not hasattr(self, event):
             raise NotImplemented('No method implemented for event %s.' % event)
 
-        self.logger.debug('Received %e event with the following data:\n %s' % (event, repr(request.json)))
+        self.logger.debug('Received %s event with the following data:\n %s' % (event, repr(request.json)))
 
         # Call the method with the json as parameter
         return getattr(self, event)(request.json)
