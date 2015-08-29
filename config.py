@@ -9,6 +9,9 @@ class Config(object):
     # Host for the redis server
     REDIS = 'redis'
 
+    # Do not push this to a public repo
+    SLACK_CALLBACK = '/gitbot'
+    SLACK_DEFAULT_CHANNEL = '#general'
 
     # Define the application directory
     import os
@@ -21,6 +24,8 @@ class Config(object):
     SECRET_KEY = "secret key that you need to change, seriously!"
 
 class ProductionConfig(Config):
+    SLACK_TOKEN = 'here you put the slack token'
+
     # Gitlab hook url
     GITLAB_HOOK = '/hooks/bWxNGVQij55cCZigeKDlXf9P6L14bKc4AhdPmPL5mEc='
 
