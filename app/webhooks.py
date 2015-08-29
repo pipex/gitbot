@@ -8,6 +8,7 @@ from .util import camel_to_underscore
 from werkzeug.exceptions import NotImplemented
 from logging import getLogger
 
+import six
 
 class WebHook(MethodView):
     def __init__(self, logger=None):
@@ -24,10 +25,13 @@ class WebHook(MethodView):
         if not hasattr(self, event):
             raise NotImplemented('No method implemented for event %s.' % event)
 
-        self.logger.debug('Received %s event with the following data:\n %s' % (event, repr(request.json)))
+        # Get a dict of POSTed data
+        data = {k: d[k] for d in [request.json, request.form, request.args] for k in six.iterkeys(d or {})}
+
+        self.logger.debug('Received %s event with the following data:\n %s' % (event, repr(data)))
 
         # Call the method with the json as parameter
-        return getattr(self, event)(request.json)
+        return getattr(self, event)(data)
 
 
 class WebHooks:
