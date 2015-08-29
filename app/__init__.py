@@ -39,5 +39,5 @@ def not_found(error):
     return render_template('404.html'), 404
 
 # Import modules
-from app.dashboard import views as dashboard_views
+from app.public import views as public_views
 from app.hooks import views as hook_views
