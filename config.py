@@ -9,6 +9,9 @@ class Config(object):
     # Host for the redis server
     REDIS = 'redis'
 
+    # Gitlab hook url
+    GITLAB_HOOK = '/hooks/bWxNGVQij55cCZigeKDlXf9P6L14bKc4AhdPmPL5mEc='
+
     # Define the application directory
     import os
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
