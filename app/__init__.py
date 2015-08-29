@@ -40,3 +40,4 @@ def not_found(error):
 
 # Import modules
 from app.dashboard import views as dashboard_views
+from app.hooks import views as hook_views
