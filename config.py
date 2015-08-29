@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 class Config(object):
     DEBUG = False
     TESTING = False
+
+    # Host for the redis server
     REDIS = 'redis'
 
     # Define the application directory
