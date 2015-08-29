@@ -6,9 +6,13 @@ from flask import request
 from .util import camel_to_underscore
 
 from werkzeug.exceptions import NotImplemented
+from logging import getLogger
 
 
 class WebHook(MethodView):
+    def __init__(self, logger=None):
+        self.logger = logger if logger else getLogger('webhooks')
+
     def event(self, request):
         """Returns the event name from the request information.
         """
@@ -19,6 +23,8 @@ class WebHook(MethodView):
 
         if not hasattr(self, event):
             raise NotImplemented('No method implemented for event %s.' % event)
+
+        self.logger.debug('Received %e event with the following data:\n %s' % (event, repr(request.json)))
 
         # Call the method with the json as parameter
         return getattr(self, event)(request.json)
@@ -80,9 +86,12 @@ class WebHooks:
             # Dirty trick, make the class belong to the type restful.Resource
             cls = type(cls.__name__, (basecls,), dict(cls.__dict__))
 
+            # Save this instance in another class to use inside the method
+            hook = self
+
             def __init__(self, *args, **kwargs):
                 # Call Resource constructor
-                super(cls, self).__init__()
+                super(cls, self).__init__(logger=hook.app.logger)
 
                 # Initialize the instance
                 clsinit(self, *args, **kwargs)
