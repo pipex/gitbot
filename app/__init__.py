@@ -12,9 +12,7 @@ app.config.from_object('config.default')
 
 # Configure slackbot
 from flask_slackbot import SlackBot
-
 slackbot = SlackBot(app)
-
 
 # Configure webhooks
 from .webhooks import WebHooks
@@ -22,7 +20,6 @@ webhooks = WebHooks(app)
 
 from .gitlab import GitlabWebHook
 webhooks.add_handler('gitlab', GitlabWebHook)
-
 
 # Configure logging
 import logging
