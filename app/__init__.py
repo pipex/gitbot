@@ -10,10 +10,6 @@ app = Flask(__name__)
 # Configurations
 app.config.from_object('config.default')
 
-# Configure slackbot
-from flask_slackbot import SlackBot
-slackbot = SlackBot(app)
-
 # Configure webhooks
 from .webhooks import WebHooks
 webhooks = WebHooks(app)

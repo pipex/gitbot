@@ -1,4 +1,5 @@
+six
 flask
 flask-script
-flask-slackbot
+slacker
 redis

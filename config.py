@@ -10,7 +10,6 @@ class Config(object):
     REDIS = 'redis'
 
     # Do not push this to a public repo
-    SLACK_CALLBACK = '/gitbot'
     SLACK_DEFAULT_CHANNEL = '#general'
 
     # Define the application directory
