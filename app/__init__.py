@@ -17,6 +17,10 @@ webhooks = WebHooks(app)
 from .gitlab import GitlabWebHook
 webhooks.add_handler('gitlab', GitlabWebHook)
 
+# Configure Slacker
+from slacker import Slacker
+slack = Slacker(app.config.get('SLACK_TOKEN'))
+
 # Configure logging
 import logging
 from logging.handlers import TimedRotatingFileHandler
