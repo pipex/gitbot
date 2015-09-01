@@ -21,6 +21,11 @@ webhooks.add_handler('gitlab', GitlabWebHook)
 from slacker import Slacker
 slack = Slacker(app.config.get('SLACK_TOKEN'))
 
+
+# Configure storage
+from redis import Redis
+redis = Redis(app.config.get('REDIS'))
+
 # Configure logging
 import logging
 from logging.handlers import TimedRotatingFileHandler
