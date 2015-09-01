@@ -1,6 +1,8 @@
 Gitbot
 ======
 
+**NOTE** this is under heavy development and not nearly production ready
+
 This is a slack bot that listens to gitlab and github web hooks in order to communicate the events to the appropriate slack channel.
 
 Among other things this bots keeps track of commit statistics and notifies them in a periodical manner to the #general channel.
