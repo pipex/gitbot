@@ -1,24 +1,102 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from app import app, webhooks
+import urlparse
+from app import app, webhooks, slack
+from app.slack import get_channel_id, get_user_id
+from flask import json, make_response, render_template
+from functools import partial
+
+default_response = partial(make_response, '', 200)
 
 @webhooks.hook(
     app.config.get('GITLAB_HOOK','/hooks/gitlab'),
     handler='gitlab')
 class Gitlab:
+    def check_object_kind(self, obj, expected):
+        object_kind = obj.get('object_kind', None)
+        if object_kind != expected:
+            # This should not happen
+            app.logger.error("Received object_kind '%s' when expecting '%s'" % (object_kind, expected))
+            return False
+
+        return True
+
+    def get_project_from_url(self, url, resource=None):
+        # Parse the url
+        url = urlparse.urlparse(url)
+
+        # Get the project data from the url
+        parts = url.path.split('/')
+        project = {}
+
+        # If resource is given and it appears in url, then the repository has
+        # a namespace name. If t
+        if (resource and len(parts) > 3 and parts[3] == resource) or len(parts) >= 3:
+            # either the url is <group>/<project>/issues
+            project['namespace'] = parts[1]
+            project['name'] = parts[2]
+            project['url'] = urlparse.urlunparse((url.scheme,
+                                                  url.netloc,
+                                                  '/%s/%s' % (project['namespace'], project['name']),
+                                                  None,
+                                                  None,
+                                                  None))
+        else:
+            # or <project>/issues
+            project['name'] = parts[1]
+            project['url'] = urlparse.urlunparse((url.scheme,
+                                                  url.netloc,
+                                                  '/%s' % project['name'],
+                                                  None,
+                                                  None,
+                                                  None))
+
+        return project
+
     def issue(self, data):
-        # if the repository belongs to a group check if a channel with the same
-        # name (lowercased and hyphened) exists
-        # Check if a channel with the same repository name exists
+        if not self.check_object_kind(data, 'issue'):
+            # This should not happen
+            return default_response()
 
-        # If the channel exists post to that channel
+        # Get the issue object
+        issue = data.get('object_attributes')
 
-        # If not post to general or other defined by configuration
+        # Get the project data from the url, since there is no 'repository' provided
+        project = self.get_project_from_url(issue.get('url'), resource='issue')
 
-        # publish the issue to the found channel including the Title, Message
-        # and the creator and responsible if defined
-        pass
+        # If the project has a namespace, check that the namespace exists in slack
+        # Otherwise try to find the channel matching the project name
+        # Finally check SLACK_DEVELOPERS_CHANNEL or #general
+        names = [i for i in [project.get('namespace'),
+                             project.get('name'),
+                             app.config.get('SLACK_DEVELOPERS_CHANNEL'),
+                             '#general'] if i is not None]
+
+        channel = None
+        for name in names:
+            channel = get_channel_id(name)
+            if channel: break
+
+        # Get the user info
+        user = data.get('user')
+
+        # Check if the username matches slack username
+        username = user.get('name')
+        if get_user_id(user.get('username')):
+            username = "<@%s>" % user.get('username')
+
+        # Generate the response text
+        message = render_template('issue.txt', username=username, project=project, issue=issue)
+
+        if not app.config.get('TESTING', False):
+            # Send message to slack
+            slack.chat.post_message(channel, message)
+        else:
+            # Return message to check in testing
+            return message
+
+        return default_response()
 
     def push(self, data):
         # Read commit list to update commit count for user
