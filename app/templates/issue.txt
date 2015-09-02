@@ -1,3 +1,3 @@
-{{username}} {{issue.state}} <{{issue.url}}|issue #{{issue.iid}}> in <{{project.url}}|{{project.name}}>: *{{issue.title}}*
+{{username}} {{issue.state}} <{{issue.url}}|issue #{{issue.iid}}> in <{{project.url}}|{{project.longname}}>: *{{issue.title}}*
 
 > {{issue.description}}

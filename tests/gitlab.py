@@ -38,7 +38,7 @@ class GitlabTestCase(BaseTestCase):
 
 
         assert rv.status_code == 200
-        assert rv.data == """Administrator opened <http://example.com/diaspora/issues/23|issue #23> in <http://example.com/diaspora/issues|issues>: *New API: create/update/delete file*
+        assert rv.data == """Administrator opened <http://example.com/diaspora/issues/23|issue #23> in <http://example.com/diaspora|diaspora>: *New API: create/update/delete file*
 
 > Create new API for manipulations with repository"""
 
@@ -74,6 +74,6 @@ class GitlabTestCase(BaseTestCase):
                            headers={'X-Gitlab-Event': 'Issue Hook'})
 
         assert rv.status_code == 200
-        assert rv.data == """<@flalanne> closed <http://git.niclabs.cl/flalanne/test-project/issues/1|issue #1> in <http://git.niclabs.cl/flalanne/test-project|test-project>: *Created issue*
+        assert rv.data == """<@flalanne> closed <http://git.niclabs.cl/flalanne/test-project/issues/1|issue #1> in <http://git.niclabs.cl/flalanne/test-project|flalanne/test-project>: *Created issue*
 
 > This is an issue"""
