@@ -40,6 +40,7 @@ def parse_project_name_from_repo_url(url, resource=None):
         # or is not given and the path length is larger than 2
         project['namespace'] = parts[1]
         project['name'] = parts[2]
+        project['longname'] = project['namespace'] + '/' + project['name']
         project['url'] = urlparse.urlunparse((url.scheme,
                                               url.netloc,
                                               '/%s/%s' % (project['namespace'], project['name']),
@@ -49,6 +50,7 @@ def parse_project_name_from_repo_url(url, resource=None):
     else:
         # In other case the repo name is /<name>/<resource> or just /<name>
         project['name'] = parts[1]
+        project['longname'] = project['name']
         project['url'] = urlparse.urlunparse((url.scheme,
                                               url.netloc,
                                               '/%s' % project['name'],
