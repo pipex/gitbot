@@ -31,7 +31,7 @@ class Gitlab:
         issue = data.get('object_attributes')
 
         # Get the project data from the url, since there is no 'repository' provided
-        project = parse_project_name_from_repo_url(issue.get('url'), resource='issue')
+        project = parse_project_name_from_repo_url(issue.get('url'), resource='issues')
 
         # If the project has a namespace, check that the namespace exists in slack
         # Otherwise try to find the channel matching the project name
