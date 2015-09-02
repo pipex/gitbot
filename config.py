@@ -11,6 +11,7 @@ class Config(object):
 
     # Do not push this to a public repo
     SLACK_DEFAULT_CHANNEL = '#general'
+    SLACK_DEVELOPERS_CHANNEL = '#developers'
 
     # Define the application directory
     import os
