@@ -1,5 +1,9 @@
 import re
-import urlparse
+
+try:
+    import urllib.parse as urlparse
+except:
+    import urlparse
 
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')

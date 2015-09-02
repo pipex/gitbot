@@ -61,7 +61,7 @@ class WebHooksTestCase(BaseTestCase):
         data = json.dumps(dict(one=1, two=2))
         rv = self.app.post(hook3, follow_redirects=True, data=data, content_type='application/json')
         assert rv.status_code == 200
-        assert rv.data == data
+        assert rv.data.decode('utf-8') == data
 
 
 class GitlabWebHooksTestCase(BaseTestCase):
@@ -80,19 +80,19 @@ class GitlabWebHooksTestCase(BaseTestCase):
     def test_event_with_comment_note(self):
         rv = self.app.post(hook4, follow_redirects=True, content_type='application/json', data=json.dumps(dict(commit={'id': '123'})), headers={'X-Gitlab-Event': 'Note Hook'})
         assert rv.status_code == 200
-        assert rv.data == 'commit_comment'
+        assert rv.data.decode('utf-8') == 'commit_comment'
 
     def test_event_with_issue_note(self):
         rv = self.app.post(hook4, follow_redirects=True, content_type='application/json', data=json.dumps(dict(issue={'id': '123'})), headers={'X-Gitlab-Event': 'Note Hook'})
         assert rv.status_code == 200
-        assert rv.data == 'issue_comment'
+        assert rv.data.decode('utf-8') == 'issue_comment'
 
     def test_event_with_merge_request_note(self):
         rv = self.app.post(hook4, follow_redirects=True, content_type='application/json', data=json.dumps(dict(merge_request={'id': '123'})), headers={'X-Gitlab-Event': 'Note Hook'})
         assert rv.status_code == 200
-        assert rv.data == 'merge_request_comment'
+        assert rv.data.decode('utf-8') == 'merge_request_comment'
 
     def test_event_with_snippet_note(self):
         rv = self.app.post(hook4, follow_redirects=True, content_type='application/json', data=json.dumps(dict(snippet={'id': '123'})), headers={'X-Gitlab-Event': 'Note Hook'})
         assert rv.status_code == 200
-        assert rv.data == 'snippet_comment'
+        assert rv.data.decode('utf-8') == 'snippet_comment'

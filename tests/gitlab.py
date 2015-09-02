@@ -45,7 +45,7 @@ class GitlabTestCase(BaseTestCase):
 
 
         assert rv.status_code == 200
-        assert rv.data == """Version 0.0.1 of <http://git.niclabs.cl/super-project/test-project|super-project/test-project> has been published by <@flalanne>. Let's celebrate team *super-project*!! :balloon::confetti_ball::tada:"""
+        assert rv.data.decode('utf-8') == """Version 0.0.1 of <http://git.niclabs.cl/super-project/test-project|super-project/test-project> has been published by <@flalanne>. Let's celebrate team *super-project*!! :balloon::confetti_ball::tada:"""
 
     def test_issues_hook_without_namespace(self):
         data = {
@@ -79,7 +79,7 @@ class GitlabTestCase(BaseTestCase):
                            headers={'X-Gitlab-Event': 'Issue Hook'})
 
         assert rv.status_code == 200
-        assert rv.data == """Administrator opened <http://example.com/diaspora/issues/23|issue #23> in <http://example.com/diaspora|diaspora>: *New API: create/update/delete file*
+        assert rv.data.decode('utf-8') == """Administrator opened <http://example.com/diaspora/issues/23|issue #23> in <http://example.com/diaspora|diaspora>: *New API: create/update/delete file*
 
 > Create new API for manipulations with repository"""
 
@@ -115,6 +115,6 @@ class GitlabTestCase(BaseTestCase):
                            headers={'X-Gitlab-Event': 'Issue Hook'})
 
         assert rv.status_code == 200
-        assert rv.data == """<@flalanne> closed <http://git.niclabs.cl/flalanne/test-project/issues/1|issue #1> in <http://git.niclabs.cl/flalanne/test-project|flalanne/test-project>: *Created issue*
+        assert rv.data.decode('utf-8') == """<@flalanne> closed <http://git.niclabs.cl/flalanne/test-project/issues/1|issue #1> in <http://git.niclabs.cl/flalanne/test-project|flalanne/test-project>: *Created issue*
 
 > This is an issue"""
