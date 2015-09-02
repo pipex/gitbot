@@ -74,9 +74,13 @@ class Gitlab:
                              '#general'] if i is not None]
 
         channel = None
+        if  project.get('namespace') and get_user_id(project.get('namespace')):
+            # If the namespace is a slack user, send data directly to the user channel
+            channel = '@' + project.get('namespace')
+
         for name in names:
-            channel = get_channel_id(name)
             if channel: break
+            channel = name if get_channel_id(name) else None
 
         # Get the user info
         user = data.get('user')
