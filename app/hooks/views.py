@@ -76,7 +76,53 @@ class Gitlab:
 
     def tag_push(self, data):
         # Publish news of the new version of the repo in general
-        pass
+        if not self.check_object_kind(data, 'tag_push'):
+            # This should not happen
+            return default_response()
+
+        # Get the project data
+        repository = data.get('repository')
+        project = parse_project_name_from_repo_url(repository.get('homepage'))
+
+        # For now all tag messages go to #general to notify the whole team of the
+        # new version
+        channel = '#general'
+        if  project.get('namespace') and get_user_id(project.get('namespace')):
+            # If the namespace is a slack user, we probably don't need to notify of a new
+            # tag push
+            return default_response()
+
+        # Get the tag reference
+        reference = data.get('ref')
+
+        # Usually the reference is given by refs/tags/<tagname>
+        refs, name, tag = reference.split('/')
+        message = data.get('message')
+
+        # Gitlab is not very consitent with its responses
+        # Check if the user part of the email matches the username in slack
+        # TODO: create an association between email and slack username?
+        username = data.get('user_name')
+        if data.get('user_email'):
+            u, d = data.get('user_email').split('@')
+            if get_user_id(u):
+                username = "<@%s>" % u
+
+        team = project.get('namespace', project.get('name'))
+
+        # Generate the response text
+        response = render_template('tag.txt', username=username, project=project, message=message, team=team, tag=tag)
+
+        if not app.config.get('TESTING', False):
+            # Send message to slack
+            slack.chat.post_message(channel, response)
+        else:
+            #slack.chat.post_message('#slack-test', response)
+            # Return message to check in testing
+            return response
+
+        return default_response()
+
 
     def merge_request(self, data):
         # Notify in the channel
