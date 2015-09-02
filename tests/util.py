@@ -28,6 +28,5 @@ class UtilTestCase(BaseTestCase):
         assert project.get('url') == 'https://mine.gitlab.com/repo'
 
         project = parse_project_name_from_repo_url("https://mine.gitlab.com/myrepo/issues/1", "issues")
-        print project
         assert project.get('name') == 'myrepo'
         assert project.get('url') == 'https://mine.gitlab.com/myrepo'
