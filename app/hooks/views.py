@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import urlparse
 from app import app, webhooks, slack
 from app.slack import get_channel_id, get_user_id
+from app.util import parse_project_name_from_repo_url
 from flask import json, make_response, render_template
 from functools import partial
 
@@ -22,38 +22,6 @@ class Gitlab:
 
         return True
 
-    def get_project_from_url(self, url, resource=None):
-        # Parse the url
-        url = urlparse.urlparse(url)
-
-        # Get the project data from the url
-        parts = url.path.split('/')
-        project = {}
-
-        # If resource is given and it appears in url, then the repository has
-        # a namespace name. If t
-        if (resource and len(parts) > 3 and parts[3] == resource) or len(parts) >= 3:
-            # either the url is <group>/<project>/issues
-            project['namespace'] = parts[1]
-            project['name'] = parts[2]
-            project['url'] = urlparse.urlunparse((url.scheme,
-                                                  url.netloc,
-                                                  '/%s/%s' % (project['namespace'], project['name']),
-                                                  None,
-                                                  None,
-                                                  None))
-        else:
-            # or <project>/issues
-            project['name'] = parts[1]
-            project['url'] = urlparse.urlunparse((url.scheme,
-                                                  url.netloc,
-                                                  '/%s' % project['name'],
-                                                  None,
-                                                  None,
-                                                  None))
-
-        return project
-
     def issue(self, data):
         if not self.check_object_kind(data, 'issue'):
             # This should not happen
@@ -63,7 +31,7 @@ class Gitlab:
         issue = data.get('object_attributes')
 
         # Get the project data from the url, since there is no 'repository' provided
-        project = self.get_project_from_url(issue.get('url'), resource='issue')
+        project = parse_project_name_from_repo_url(issue.get('url'), resource='issue')
 
         # If the project has a namespace, check that the namespace exists in slack
         # Otherwise try to find the channel matching the project name
