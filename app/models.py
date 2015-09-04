@@ -27,6 +27,17 @@ class Channel(RedisModel):
 class User(RedisModel):
     __prefix__ = '@'
 
+    @property
+    def updated(self):
+        if 'updated' in self:
+            return datetime.strptime(self['updated'], "%Y-%m-%dT%H:%M:%S.%fZ")
+
+        return None
+
+    @updated.setter
+    def updated(self, value):
+        self['updated'] = datetime.strftime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
+
     @staticmethod
     def load_from_slack(include_bots=False, include_deleted=False):
         """Update user list from slack"""
