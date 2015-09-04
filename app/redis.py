@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from app import redis
 
 import collections
@@ -84,7 +87,7 @@ class RedisModel(collections.MutableMapping):
 
         keys = redis.keys(cls.__prefix__+'*')
         for key in keys:
-            yield cls(key, *args, **kwargs)
+            yield cls(key.decode(), *args, **kwargs)
 
     @classmethod
     def deleteall(cls):
