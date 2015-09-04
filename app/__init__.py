@@ -51,7 +51,7 @@ from app.public import views as public_views
 from app.hooks import views as hook_views
 
 # Load data from slack
-from app.slack import update_users, update_channels
+from app.models import update_users, update_channels
 
 # Store the user list locally
 update_users()

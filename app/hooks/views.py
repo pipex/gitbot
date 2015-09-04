@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from app import app, webhooks, slack
-from app.slack import get_channel_id, get_user_id
+from app.models import get_channel_id, get_user_id
 from app.util import parse_project_name_from_repo_url
 from flask import json, make_response, render_template
 from functools import partial
