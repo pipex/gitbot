@@ -29,13 +29,38 @@ class RedisModel(collections.MutableMapping):
         return self.__getitem__(name)
 
     def __setattr__(self, name, value):
+        """Set the attribute with the value given by 'value'
+
+        It works by calling self.__setitem__ with a couple of exceptions
+        if the attribute name is 'id', it can only be set if it has not been set
+        before.
+
+        If a property setter has been defined for the inheriting class with the same
+        name as the key, then the method calls the property setter first.
+
+        Property setters must take care to set the actual value using self[name] to
+        avoid infinite loops
+        """
         if name == 'id':
             if name in self.__dict__:
-                # Cannot change id
+                # Cannot change id (TODO: use redis.rename()?)
                 raise RedisOperationNotAllowedException("The model id cannot be changed")
             else:
                 self.__dict__[name] = value
                 return True
+
+        cls = self.__class__
+
+        # Check if there are property setter.
+        # This only works if the property setter has the same name as the property
+        if hasattr(cls, name) and \
+            isinstance(models.User.updated, property):
+            try:
+                cls.__dict__[name].__set__(self, value)
+                return True
+            except AttributeError:
+                # No setter with the same name defined
+                pass
 
         return self.__setitem__(name, value)
 
