@@ -7,7 +7,11 @@ class RedisOperationNotAllowedException(Exception):
 
 class RedisModel(collections.MutableMapping):
     """Defines a basic model for data storage using HASH inside
-    redis."""
+    redis.
+
+    Implementing classes must define a __prefix__ attribute, to group keys of the
+    defined model.
+    """
 
     def __init__(self, id):
         if not hasattr(self, '__prefix__'):
@@ -61,11 +65,8 @@ class RedisModel(collections.MutableMapping):
     def all(cls, *args, **kwargs):
         """Return an iterator over the objects matching the model in the database
 
-        It perform the query by calling redis.keys(). Implementing
-        classes must define a __prefix__ attribute, in order to
-        get a list from only a sub-group of keys.
-
-        If extra arguments are given, they are passed to the contructor of the model
+        It performs the query by calling redis.keys() using the defined prefix.
+        If extra arguments are given, they are passed to the contructor of the model.
         """
         if not hasattr(cls, '__prefix__'):
             raise AttributeError("Inheriting classes must define the attribute: __prefix__")
