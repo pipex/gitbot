@@ -82,6 +82,9 @@ class RedisModel(collections.MutableMapping):
     def __keytransform__(self, key):
         return key
 
+    def __contains__(self, key):
+        return redis.hexists(self.id, self.__keytransform__(key))
+
     def incrby(self, key, amount=1):
         """Increment the provided key in the dictionary by the specified amount"""
         redis.hincrby(self.id, self.__keytransform__(key), amount)
