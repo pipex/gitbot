@@ -82,6 +82,9 @@ class RedisModel(collections.MutableMapping):
     def __keytransform__(self, key):
         return key
 
+    def __repr__(self):
+        return repr(redis.hgetall(self.id))
+
     def __contains__(self, key):
         return redis.hexists(self.id, self.__keytransform__(key))
 
