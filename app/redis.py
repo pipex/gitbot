@@ -62,6 +62,16 @@ class RedisModel(collections.MutableMapping):
         return redis.delete(self.id)
 
     @classmethod
+    def exists(cls, id):
+        if not hasattr(cls, '__prefix__'):
+            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
+
+        if not id.startswith(cls.__prefix__):
+            id = cls.__prefix__ + id
+
+        return redis.exists(id)
+
+    @classmethod
     def all(cls, *args, **kwargs):
         """Return an iterator over the objects matching the model in the database
 
