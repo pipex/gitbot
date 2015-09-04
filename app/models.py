@@ -39,6 +39,13 @@ class User(RedisModel):
     def commits_updated(self, value):
         self['commits_updated'] = datetime.strftime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
 
+    @property
+    def commits_average(self):
+        if 'days' in self and self.days > 0:
+            return self.commits_total / self.days
+
+        return 0.0
+
     @staticmethod
     def load_from_slack(include_bots=False, include_deleted=False):
         """Update user list from slack"""
@@ -65,7 +72,7 @@ class User(RedisModel):
         """Update the number of commits"""
         if not 'commits_updated' in self:
             # Start from 0
-            self.commits_updated                = datetime.now()
+            self.commits_updated        = datetime.now()
             self.commits_in_last_day    = 0
             self.commits_in_last_week   = 0
             self.commits_in_last_month  = 0
