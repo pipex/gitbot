@@ -32,8 +32,9 @@ class RedisModel(collections.MutableMapping):
                 raise RedisOperationNotAllowedException("The model id cannot be changed")
             else:
                 self.__dict__[name] = value
+                return True
 
-        self.__setitem__(name, value)
+        return self.__setitem__(name, value)
 
     def __getitem__(self, key):
         return redis.hget(self.id, self.__keytransform__(key))
