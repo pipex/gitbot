@@ -1,87 +1,58 @@
 from app import slack, redis, app
 
-def get_channels(force_update=False):
-    channels = redis.get('channels')
-    if not channels or force_update:
-        update_channels()
+from app.redis import RedisModel
 
-    return redis.smembers('channels')
+class Channel(RedisModel):
+    __prefix__ = '#'
 
-def get_channel_id(channel):
-    """Get channel slack id."""
-    if not channel.startswith('#'):
-        channel = "#%s" % channel
+    @staticmethod
+    def load_from_slack():
+        """Update channel list from slack"""
+        slack_response = slack.channels.list()
 
-    return redis.get(channel)
+        if not slack_response.successful:
+            app.logger.error('Error loading channel list. Server returned %s' % slack_response.error)
+            return False
 
-def get_user_id(username):
-    """Get user slack id"""
-    if not username.startswith('#'):
-        username = "@%s" % username
+        # Add channel to list and save
+        for channel in slack_response.body.get('channels', []):
+            name = channel.get('name')
 
-    id = redis.get(username)
-    if not id:
-        # Update the list
-        update_users()
+            entity = Channel(channel.get('name'))
+            entity.slack_id = channel.get('id')
 
-        # Try again
-        id = redis.get(username)
-
-    return id
+        return True
 
 
-def update_channels():
-    """Update channel list from slack"""
-    slack_response = slack.channels.list()
+class User(RedisModel):
+    __prefix__ = '@'
 
-    if not slack_response.successful:
-        app.logger.error('Error loading channel list. Server returned %s' % slack_response.error)
-        return False
+    @staticmethod
+    def load_from_slack(include_bots=False, include_deleted=False):
+        """Update user list from slack"""
+        slack_response = slack.users.list()
 
-    # Add channel to list and save
-    for channel in slack_response.body.get('channels', []):
-        name = '#%s' % channel.get('name')
+        if not slack_response.successful:
+            app.logger.error('Error loading user list. Server returned %s' % slack_response.error)
+            return False
 
-        # Save the id of the channel
-        redis.set(name, channel.get('id'))
+        # Add channel to list and save
+        for user in slack_response.body.get('members', []):
+            if user.get('is_bot') and not include_bots:
+                continue
 
-        # Add the name to a channels set
-        redis.sadd('channels', name)
+            if user.get('deleted') and not include_deleted:
+                continue
 
-    return True
+            entity = User(user.get('name'))
+            entity.slack_id = user.get('id')
 
+        return True
 
-def update_users(include_bots=False, include_deleted=False):
-    """Update user list from slack"""
-    slack_response = slack.users.list()
-
-    if not slack_response.successful:
-        app.logger.error('Error loading user list. Server returned %s' % slack_response.error)
-        return False
-
-    # Add channel to list and save
-    for user in slack_response.body.get('members', []):
-        if user.get('is_bot') and not include_bots:
-            continue
-
-        if user.get('deleted') and not include_deleted:
-            continue
-
-        name = '@%s' % user.get('name')
-
-        # Save the id of the user
-        redis.set(name, user.get('id'))
-
-        # Add the name to a users set
-        redis.sadd('users', name)
-
-    return True
-
-
-def load_data():
+def load_data_from_slack():
     """Load data from slack.
 
     To be called on application start"""
 
-    update_channels()
-    update_users()
+    Channel.load_from_slack()
+    User.load_from_slack()

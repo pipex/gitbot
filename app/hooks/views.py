@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from app import app, webhooks, slack
-from app.models import get_channel_id, get_user_id
+from app.models import User, Channel
 from app.util import parse_project_name_from_repo_url
 from flask import json, make_response, render_template
 from functools import partial
@@ -42,20 +42,20 @@ class Gitlab:
                              '#general'] if i is not None]
 
         channel = None
-        if  project.get('namespace') and get_user_id(project.get('namespace')):
+        if  project.get('namespace') and User.exists(project.get('namespace')):
             # If the namespace is a slack user, send data directly to the user channel
             channel = '@' + project.get('namespace')
 
         for name in names:
             if channel: break
-            channel = name if get_channel_id(name) else None
+            channel = name if Channel.exists(name) else None
 
         # Get the user info
         user = data.get('user')
 
         # Check if the username matches slack username
         username = user.get('name')
-        if get_user_id(user.get('username')):
+        if User.exists(user.get('username')):
             username = "<@%s>" % user.get('username')
 
         # Generate the response text
@@ -87,7 +87,7 @@ class Gitlab:
         # For now all tag messages go to #general to notify the whole team of the
         # new version
         channel = '#general'
-        if  project.get('namespace') and get_user_id(project.get('namespace')):
+        if  project.get('namespace') and User.exists(project.get('namespace')):
             # If the namespace is a slack user, we probably don't need to notify of a new
             # tag push
             return default_response()
@@ -105,7 +105,7 @@ class Gitlab:
         username = data.get('user_name')
         if data.get('user_email'):
             u, d = data.get('user_email').split('@')
-            if get_user_id(u):
+            if User.exists(u):
                 username = "<@%s>" % u
 
         team = project.get('namespace', project.get('name'))
