@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from .base import BaseTestCase
-from app.redis import RedisModel, RedisOperationNotAllowedException
+from app.redis import RedisModel
 
 class Entity(RedisModel):
     __prefix__ = 'entity:'
@@ -46,5 +46,5 @@ class RedisModelTestCase(BaseTestCase):
         try:
             newentity.id = "three"
             assert False
-        except RedisOperationNotAllowedException:
+        except AttributeError:
             assert True

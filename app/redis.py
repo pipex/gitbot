@@ -5,9 +5,6 @@ from app import redis
 
 import collections
 
-class RedisOperationNotAllowedException(Exception):
-    pass
-
 class RedisModel(collections.MutableMapping):
     """Defines a basic model for data storage using HASH inside
     redis.
@@ -44,7 +41,7 @@ class RedisModel(collections.MutableMapping):
         if name == 'id':
             if name in self.__dict__:
                 # Cannot change id (TODO: use redis.rename()?)
-                raise RedisOperationNotAllowedException("The model id cannot be changed")
+                raise AttributeError("The model id cannot be changed")
             else:
                 self.__dict__[name] = value
                 return True
