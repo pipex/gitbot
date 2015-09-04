@@ -62,7 +62,21 @@ class RedisModel(collections.MutableMapping):
         return self.__setitem__(name, value)
 
     def __getitem__(self, key):
-        return redis.hget(self.id, self.__keytransform__(key))
+        value = redis.hget(self.id, self.__keytransform__(key))
+
+        # If the value is none
+        if not value:
+            return None
+
+        # Try to parse numeric types
+        parsers = [int, float]
+        for parse in parsers:
+            try:
+                return parse(value)
+            except ValueError:
+                pass
+
+        return value
 
     def __setitem__(self, key, value):
         return redis.hset(self.id, self.__keytransform__(key), value)
