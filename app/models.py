@@ -1,5 +1,6 @@
-from app import slack, redis, app
+from datetime import datetime
 
+from app import slack, redis, app
 from app.redis import RedisModel
 
 class Channel(RedisModel):
@@ -28,15 +29,15 @@ class User(RedisModel):
     __prefix__ = '@'
 
     @property
-    def updated(self):
-        if 'updated' in self:
-            return datetime.strptime(self['updated'], "%Y-%m-%dT%H:%M:%S.%fZ")
+    def commits_updated(self):
+        if 'commits_updated' in self:
+            return datetime.strptime(self['commits_updated'], "%Y-%m-%dT%H:%M:%S.%fZ")
 
         return None
 
-    @updated.setter
-    def updated(self, value):
-        self['updated'] = datetime.strftime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
+    @commits_updated.setter
+    def commits_updated(self, value):
+        self['commits_updated'] = datetime.strftime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
 
     @staticmethod
     def load_from_slack(include_bots=False, include_deleted=False):
