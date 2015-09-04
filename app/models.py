@@ -61,6 +61,58 @@ class User(RedisModel):
 
         return True
 
+    def update_commits(self, commits=1):
+        """Update the number of commits"""
+        if not 'commits_updated' in self:
+            # Start from 0
+            self.commits_updated                = datetime.now()
+            self.commits_in_last_day    = 0
+            self.commits_in_last_week   = 0
+            self.commits_in_last_month  = 0
+            self.commits_in_last_year   = 0
+            self.commits_total = 0
+            self.days = 1
+
+        # We will check the dates
+        now = datetime.now()
+        updated = self.commits_updated
+
+        # Save the difference
+        delta = now - updated
+
+        # If more than one day has passed since last commit, reset daily commit count
+        if delta.days > 0:
+            self.commits_in_last_day = 0
+
+            # And increase the number of days counting
+            self.incrby('days', 1)
+
+        # If the week has changed between commits, reset weekly commit count
+        if abs(now.isocalendar()[1] - updated.isocalendar()[1]) > 0:
+            # Week changed
+            self.commits_in_last_week = 0
+
+        # If the month changed, reset monthly commit count
+        if abs(now.month - updated.month) > 0:
+            self.commits_in_last_month = 0
+
+        # If the year changed, reset yearly commit count
+        if now.year - updated.year > 0:
+            self.commits_in_last_week = 0 # In case there has been no activity in an exact year
+            self.commits_in_last_month = 0
+            self.commits_in_last_year = 0
+
+        # Increase count. Use incrby for efficiency
+        self.incrby('commits_in_last_day', commits)
+        self.incrby('commits_in_last_week', commits)
+        self.incrby('commits_in_last_month', commits)
+        self.incrby('commits_in_last_year', commits)
+        self.incrby('commits_total', commits)
+
+        # Change update date
+        self.commits_updated = now
+
+
 def load_data_from_slack():
     """Load data from slack.
 
