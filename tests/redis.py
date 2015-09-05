@@ -2,9 +2,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from .base import BaseTestCase
-from app.redis import RedisModel
+from app import redis
 
-class Entity(RedisModel):
+class Entity(redis.Model):
     __prefix__ = 'entity:'
 
 class RedisModelTestCase(BaseTestCase):

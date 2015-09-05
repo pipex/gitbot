@@ -1,9 +1,8 @@
 from datetime import datetime
 
 from app import slack, redis, app
-from app.redis import RedisModel
 
-class Channel(RedisModel):
+class Channel(redis.Model):
     __prefix__ = '#'
 
     @staticmethod
@@ -25,7 +24,7 @@ class Channel(RedisModel):
         return True
 
 
-class User(RedisModel):
+class User(redis.Model):
     __prefix__ = '@'
 
     @property
@@ -62,6 +61,8 @@ class User(RedisModel):
 
             if user.get('deleted') and not include_deleted:
                 continue
+
+            print user.get('profile')
 
             entity = User(user.get('name'))
             entity.slack_id = user.get('id')

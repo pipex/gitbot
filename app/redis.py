@@ -1,11 +1,11 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from app import redis
+from app import r as redis
 
 import collections
 
-class RedisModel(collections.MutableMapping):
+class Model(collections.MutableMapping):
     """Defines a basic model for data storage using HASH inside
     redis.
 

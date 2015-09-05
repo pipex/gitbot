@@ -24,7 +24,7 @@ slack = Slacker(app.config.get('SLACK_TOKEN'))
 
 # Configure storage
 from redis import Redis
-redis = Redis(app.config.get('REDIS'))
+r = Redis(app.config.get('REDIS'))
 
 # Configure logging
 import logging
