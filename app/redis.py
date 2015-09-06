@@ -76,7 +76,7 @@ class Model(collections.MutableMapping):
             except ValueError:
                 pass
 
-        return value
+        return value.decode('utf-8')
 
     def __setitem__(self, key, value):
         return redis.hset(self.id, self.__keytransform__(key), value)
