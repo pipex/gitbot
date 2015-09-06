@@ -136,4 +136,6 @@ class Model(collections.MutableMapping):
         if not hasattr(cls, '__prefix__'):
             raise AttributeError("Inheriting classes must define the attribute: __prefix__")
 
-        return redis.delete(*redis.keys(cls.__prefix__+'*'))
+        keys = redis.keys(cls.__prefix__+'*')
+        if len(keys) > 0:
+            return redis.delete(*keys)
