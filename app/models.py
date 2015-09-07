@@ -2,6 +2,7 @@ from datetime import datetime
 
 from app import slack, redis, app
 
+
 class Channel(redis.Model):
     __prefix__ = '#'
 
@@ -80,13 +81,13 @@ class User(redis.Model):
 
     def update_commits(self, commits=1):
         """Update the number of commits"""
-        if not 'commits_updated' in self:
+        if 'commits_updated' not in self:
             # Start from 0
-            self.commits_updated        = datetime.now()
-            self.commits_in_last_day    = 0
-            self.commits_in_last_week   = 0
-            self.commits_in_last_month  = 0
-            self.commits_in_last_year   = 0
+            self.commits_updated = datetime.now()
+            self.commits_in_last_day = 0
+            self.commits_in_last_week = 0
+            self.commits_in_last_month = 0
+            self.commits_in_last_year = 0
             self.commits_total = 0
             self.days = 1
 
@@ -115,7 +116,7 @@ class User(redis.Model):
 
         # If the year changed, reset yearly commit count
         if now.year - updated.year > 0:
-            self.commits_in_last_week = 0 # In case there has been no activity in an exact year
+            self.commits_in_last_week = 0  # In case there has been no activity in an exact year
             self.commits_in_last_month = 0
             self.commits_in_last_year = 0
 
