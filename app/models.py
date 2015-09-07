@@ -119,6 +119,11 @@ class User(redis.Model):
         self.commits_updated = now
 
 
+class EmailIndex(redis.Index):
+    __prefix__ = 'e-mail:'
+    __relation__ = User
+
+
 def load_data_from_slack():
     """Load data from slack.
 
