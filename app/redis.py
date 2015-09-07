@@ -154,7 +154,7 @@ class Model(collections.MutableMapping):
         redis.hdel(self.id, self.__keytransform__(key))
 
     def __iter__(self):
-        return iter(redis.hgetall(self.id))
+        return iter(redis.hkeys(self.id))
 
     def __len__(self):
         return redis.hlen(self.id)
