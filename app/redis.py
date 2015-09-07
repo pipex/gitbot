@@ -6,6 +6,74 @@ from app import r as redis
 import collections
 
 
+class Index:
+    def __init__(self, key):
+        if not hasattr(self, '__prefix__'):
+            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
+
+        id = key
+        if not key.startswith(self.__prefix__):
+            id = self.__prefix__ + key
+        else:
+            key = key[len(self.__prefix__):]
+
+        self.id = id
+        self.key = key
+
+    def get(self):
+        value = redis.get(self.id)
+
+        if value and hasattr(self, '__relation__'):
+            # Create an object of the specified
+            value = self.__relation__(value.decode())
+
+        return value
+
+    def set(self, value):
+        if hasattr(value, 'id'):
+            # If the valueue has an id, use the id
+            value = value.id
+
+        return redis.set(self.id, value)
+
+    def delete(self):
+        return redis.delete(self.id)
+
+    @classmethod
+    def deleteall(cls):
+        if not hasattr(cls, '__prefix__'):
+            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
+
+        keys = redis.keys(cls.__prefix__ + '*')
+        if len(keys) > 0:
+            return redis.delete(*keys)
+
+    @classmethod
+    def all(cls, *args, **kwargs):
+        if not hasattr(cls, '__prefix__'):
+            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
+
+        keys = redis.keys(cls.__prefix__ + '*')
+        for key in keys:
+            yield cls(key.decode(), *args, **kwargs)
+
+    @classmethod
+    def items(cls, *args, **kwargs):
+        """Yield the key,object pairs in the index"""
+        for index in cls.all(*args, **kwargs):
+            yield index.key, index.get()
+
+    @classmethod
+    def contains(cls, key):
+        if not hasattr(cls, '__prefix__'):
+            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
+
+        if not key.startswith(cls.__prefix__):
+            key = cls.__prefix__ + key
+
+        return redis.exists(key)
+
+
 class Model(collections.MutableMapping):
     """Defines a basic model for data storage using HASH inside
     redis.
@@ -140,71 +208,3 @@ class Model(collections.MutableMapping):
         keys = redis.keys(cls.__prefix__ + '*')
         if len(keys) > 0:
             return redis.delete(*keys)
-
-
-class Index(object):
-    def __init__(self, key):
-        if not hasattr(self, '__prefix__'):
-            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
-
-        id = key
-        if not key.startswith(self.__prefix__):
-            id = self.__prefix__ + key
-        else:
-            key = key[len(self.__prefix__):]
-
-        self.id = id
-        self.key = key
-
-    def get(self):
-        value = redis.get(self.id)
-
-        if value and hasattr(self, '__relation__'):
-            # Create an object of the specified
-            value = self.__relation__(value.decode())
-
-        return value
-
-    def set(self, value):
-        if hasattr(value, 'id'):
-            # If the valueue has an id, use the id
-            value = value.id
-
-        return redis.set(self.id, value)
-
-    def delete(self):
-        return redis.delete(self.id)
-
-    @classmethod
-    def deleteall(cls):
-        if not hasattr(cls, '__prefix__'):
-            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
-
-        keys = redis.keys(cls.__prefix__ + '*')
-        if len(keys) > 0:
-            return redis.delete(*keys)
-
-    @classmethod
-    def all(cls, *args, **kwargs):
-        if not hasattr(cls, '__prefix__'):
-            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
-
-        keys = redis.keys(cls.__prefix__ + '*')
-        for key in keys:
-            yield cls(key.decode(), *args, **kwargs)
-
-    @classmethod
-    def items(cls, *args, **kwargs):
-        """Yield the key,object pairs in the index"""
-        for index in cls.all(*args, **kwargs):
-            yield index.key, index.get()
-
-    @classmethod
-    def contains(cls, key):
-        if not hasattr(cls, '__prefix__'):
-            raise AttributeError("Inheriting classes must define the attribute: __prefix__")
-
-        if not key.startswith(cls.__prefix__):
-            key = cls.__prefix__ + key
-
-        return redis.exists(key)
