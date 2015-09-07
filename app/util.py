@@ -8,13 +8,16 @@ except:
 camel_pat = re.compile(r'([A-Z])')
 under_pat = re.compile(r'_([a-z])')
 
+
 def camel_to_underscore(name):
     """Source: http://stackoverflow.com/a/17156414/4962672"""
     return camel_pat.sub(lambda x: '_' + x.group(1).lower(), name).lstrip('_')
 
+
 def underscore_to_camel(name):
     """Source: http://stackoverflow.com/a/17156414/4962672"""
     return under_pat.sub(lambda x: x.group(1).upper(), name)
+
 
 def parse_project_name_from_repo_url(url, resource=None):
     """Get the project data from a repository url
@@ -38,7 +41,7 @@ def parse_project_name_from_repo_url(url, resource=None):
     # a namespace name.
     if (resource and len(parts) >= 4 and parts[3] == resource) or \
         (resource and parts[2] != resource) or \
-        (not resource and len(parts) >= 3):
+            (not resource and len(parts) >= 3):
         # Either the resource is in position 3
         # or is given but position 2 is the project name
         # or is not given and the path length is larger than 2
