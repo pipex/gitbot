@@ -4,12 +4,15 @@ from __future__ import unicode_literals
 from .base import BaseTestCase
 from app import redis
 
+
 class Entity(redis.Model):
     __prefix__ = 'entity:'
+
 
 class NameIndex(redis.Index):
     __prefix__ = 'name:'
     __relation__ = Entity
+
 
 class RedisModelTestCase(BaseTestCase):
     def tearDown(self):
@@ -53,7 +56,6 @@ class RedisModelTestCase(BaseTestCase):
             assert False
         except AttributeError:
             assert True
-
 
     def test_index_operations(self):
         one = Entity('one')
