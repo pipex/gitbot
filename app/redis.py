@@ -120,7 +120,7 @@ class Model(collections.MutableMapping):
         # Check if there are property setter.
         # This only works if the property setter has the same name as the property
         if hasattr(cls, name) and \
-                isinstance(models.User.updated, property):
+                isinstance(cls.__dict__[name], property):
             try:
                 cls.__dict__[name].__set__(self, value)
                 return True
