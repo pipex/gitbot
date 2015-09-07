@@ -5,6 +5,7 @@ from app import r as redis
 
 import collections
 
+
 class Model(collections.MutableMapping):
     """Defines a basic model for data storage using HASH inside
     redis.
@@ -51,7 +52,7 @@ class Model(collections.MutableMapping):
         # Check if there are property setter.
         # This only works if the property setter has the same name as the property
         if hasattr(cls, name) and \
-            isinstance(models.User.updated, property):
+                isinstance(models.User.updated, property):
             try:
                 cls.__dict__[name].__set__(self, value)
                 return True
@@ -127,7 +128,7 @@ class Model(collections.MutableMapping):
         if not hasattr(cls, '__prefix__'):
             raise AttributeError("Inheriting classes must define the attribute: __prefix__")
 
-        keys = redis.keys(cls.__prefix__+'*')
+        keys = redis.keys(cls.__prefix__ + '*')
         for key in keys:
             yield cls(key.decode(), *args, **kwargs)
 
@@ -136,7 +137,7 @@ class Model(collections.MutableMapping):
         if not hasattr(cls, '__prefix__'):
             raise AttributeError("Inheriting classes must define the attribute: __prefix__")
 
-        keys = redis.keys(cls.__prefix__+'*')
+        keys = redis.keys(cls.__prefix__ + '*')
         if len(keys) > 0:
             return redis.delete(*keys)
 
@@ -179,7 +180,7 @@ class Index(object):
         if not hasattr(cls, '__prefix__'):
             raise AttributeError("Inheriting classes must define the attribute: __prefix__")
 
-        keys = redis.keys(cls.__prefix__+'*')
+        keys = redis.keys(cls.__prefix__ + '*')
         if len(keys) > 0:
             return redis.delete(*keys)
 
@@ -188,7 +189,7 @@ class Index(object):
         if not hasattr(cls, '__prefix__'):
             raise AttributeError("Inheriting classes must define the attribute: __prefix__")
 
-        keys = redis.keys(cls.__prefix__+'*')
+        keys = redis.keys(cls.__prefix__ + '*')
         for key in keys:
             yield cls(key.decode(), *args, **kwargs)
 
