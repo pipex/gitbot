@@ -62,8 +62,6 @@ class User(redis.Model):
             if user.get('deleted') and not include_deleted:
                 continue
 
-            print user.get('profile')
-
             entity = User(user.get('name'))
             entity.slack_id = user.get('id')
 
