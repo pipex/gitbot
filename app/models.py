@@ -65,6 +65,17 @@ class User(redis.Model):
             entity = User(user.get('name'))
             entity.slack_id = user.get('id')
 
+            profile = user.get('profile')
+            if profile:
+                if profile.get('email'):
+                    entity.email = profile.get('email')
+
+                    # Create the index
+                    EmailIndex(profile.get('email')).set(entity)
+
+                if profile.get('first_name'):
+                    entity.first_name = profile.get('first_name')
+
         return True
 
     def update_commits(self, commits=1):
