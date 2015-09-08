@@ -4,7 +4,7 @@ from app import slack, redis, app
 
 
 class Channel(redis.Model):
-    __prefix__ = '#'
+    name = redis.Key(primary=True, prefix='#')
 
     @staticmethod
     def load_from_slack():
@@ -26,7 +26,8 @@ class Channel(redis.Model):
 
 
 class User(redis.Model):
-    __prefix__ = '@'
+    name = redis.Key(primary=True, prefix='@')
+    email = redis.Key(index=True)
 
     @property
     def commits_updated(self):
@@ -66,13 +67,14 @@ class User(redis.Model):
             entity = User(user.get('name'))
             entity.slack_id = user.get('id')
 
+            # For now assume that the user has the same username in
+            # gitlab and slack
+            entity.gitlab_name = user.get("name")
+
             profile = user.get('profile')
             if profile:
                 if profile.get('email'):
                     entity.email = profile.get('email')
-
-                    # Create the index
-                    EmailIndex(profile.get('email')).set(entity)
 
                 if profile.get('first_name'):
                     entity.first_name = profile.get('first_name')
@@ -129,11 +131,6 @@ class User(redis.Model):
 
         # Change update date
         self.commits_updated = now
-
-
-class EmailIndex(redis.Index):
-    __prefix__ = 'e-mail:'
-    __relation__ = User
 
 
 def load_data_from_slack():
