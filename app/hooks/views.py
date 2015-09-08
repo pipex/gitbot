@@ -106,9 +106,9 @@ class Gitlab:
         # TODO: create an association between email and slack username?
         username = data.get('user_name')
         if data.get('user_email'):
-            u, d = data.get('user_email').split('@')
-            if User.exists(u):
-                username = "<@%s>" % u
+            slack_user = User.findBy('email', data.get('user_email'))
+            if slack_user:
+                username = "<@%s>" % slack_user.name
 
         team = project.get('namespace', project.get('name'))
 
