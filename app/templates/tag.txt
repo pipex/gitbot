@@ -1,1 +1,1 @@
-Version {{tag}} of <{{project.url}}|{{project.longname}}> has been published by {{username}}. Let's celebrate team *{{team}}*!! :balloon::confetti_ball::tada:
+Version {{tag}} of <{{project.url}}|{{project.longname}}> has been published by {{user|render_slack_user}}. Let's celebrate team *{{team}}*!! :balloon::confetti_ball::tada:

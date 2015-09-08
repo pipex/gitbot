@@ -80,6 +80,9 @@ class User(redis.Model):
                 if profile.get('first_name'):
                     entity.first_name = profile.get('first_name')
 
+                if profile.get('real_name'):
+                    entity.full_name = profile.get('real_name')
+
         return True
 
     def update_commits(self, commits=1):

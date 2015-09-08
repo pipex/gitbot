@@ -10,6 +10,14 @@ from functools import partial
 default_response = partial(make_response, '', 200)
 
 
+@app.template_filter('render_slack_user')
+def render_slack_user(slack_user):
+    if isinstance(slack_user, User):
+        return '<%s>' % slack_user.id
+
+    return slack_user['full_name']
+
+
 @webhooks.hook(
     app.config.get('GITLAB_HOOK', '/hooks/gitlab'),
     handler='gitlab')
@@ -54,16 +62,17 @@ class Gitlab:
             channel = name if Channel.exists(name) else None
 
         # Get the user info
-        user = data.get('user')
+        gitlab_user = data.get('user')
 
         # Check if the username matches slack username
-        username = user.get('name')
-        slack_user = User.findBy('gitlab_name', user.get('username'))
+        user = {}
+        user['full_name'] = gitlab_user.get('name')
+        slack_user = User.findBy('gitlab_name', gitlab_user.get('username'))
         if slack_user:
-            username = "<@%s>" % slack_user.name
+            user = slack_user
 
         # Generate the response text
-        message = render_template('issue.txt', username=username, project=project, issue=issue)
+        message = render_template('issue.txt', user=user, project=project, issue=issue)
 
         if not app.config.get('TESTING', False):
             # Send message to slack
@@ -108,16 +117,17 @@ class Gitlab:
         # Gitlab is not very consitent with its responses
         # Check if the user part of the email matches the username in slack
         # TODO: create an association between email and slack username?
-        username = data.get('user_name')
+        user = {}
+        user['full_name'] = data.get('user_name')
         if data.get('user_email'):
             slack_user = User.findBy('email', data.get('user_email'))
             if slack_user:
-                username = "<@%s>" % slack_user.name
+                user = slack_user
 
         team = project.get('namespace', project.get('name'))
 
         # Generate the response text
-        response = render_template('tag.txt', username=username, project=project, message=message, team=team, tag=tag)
+        response = render_template('tag.txt', user=user, project=project, message=message, team=team, tag=tag)
 
         if not app.config.get('TESTING', False):
             # Send message to slack
