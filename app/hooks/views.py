@@ -114,12 +114,11 @@ class Gitlab:
         refs, name, tag = reference.split('/')
         message = data.get('message')
 
-        # Gitlab is not very consitent with its responses
-        # Check if the user part of the email matches the username in slack
-        # TODO: create an association between email and slack username?
         user = {}
         user['full_name'] = data.get('user_name')
         if data.get('user_email'):
+            # Get the user by email. Assume that the same email is used for
+            # Gitlab and slack
             slack_user = User.findBy('email', data.get('user_email'))
             if slack_user:
                 user = slack_user
