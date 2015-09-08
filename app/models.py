@@ -28,6 +28,7 @@ class Channel(redis.Model):
 class User(redis.Model):
     name = redis.Key(primary=True, prefix='@')
     email = redis.Key(index=True)
+    gitlab_name = redis.Key(index=True)
 
     @property
     def commits_updated(self):
