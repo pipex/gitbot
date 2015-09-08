@@ -9,8 +9,9 @@ from functools import partial
 
 default_response = partial(make_response, '', 200)
 
+
 @webhooks.hook(
-    app.config.get('GITLAB_HOOK','/hooks/gitlab'),
+    app.config.get('GITLAB_HOOK', '/hooks/gitlab'),
     handler='gitlab')
 class Gitlab:
     def check_object_kind(self, obj, expected):
@@ -75,7 +76,9 @@ class Gitlab:
 
     def push(self, data):
         # Read commit list to update commit count for user
-        pass
+        if not self.check_object_kind(data, 'tag_push'):
+            # This should not happen
+            return default_response()
 
     def tag_push(self, data):
         # Publish news of the new version of the repo in general
@@ -120,12 +123,11 @@ class Gitlab:
             # Send message to slack
             slack.chat.post_message(channel, response)
         else:
-            #slack.chat.post_message('#slack-test', response)
+            # slack.chat.post_message('#slack-test', response)
             # Return message to check in testing
             return response
 
         return default_response()
-
 
     def merge_request(self, data):
         # Notify in the channel
