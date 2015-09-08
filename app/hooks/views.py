@@ -42,9 +42,10 @@ class Gitlab:
                              '#general'] if i is not None]
 
         channel = None
-        if  project.get('namespace') and User.exists(project.get('namespace')):
+        namespace_user = User.findBy('gitlab_name', project.get('namespace')) if project.get('namespace') else None
+        if namespace_user:
             # If the namespace is a slack user, send data directly to the user channel
-            channel = '@' + project.get('namespace')
+            channel = '@' + namespace_user.name
 
         for name in names:
             if channel: break
@@ -55,8 +56,9 @@ class Gitlab:
 
         # Check if the username matches slack username
         username = user.get('name')
-        if User.exists(user.get('username')):
-            username = "<@%s>" % user.get('username')
+        slack_user = User.findBy('gitlab_name', user.get('username'))
+        if slack_user:
+            username = "<@%s>" % slack_user.name
 
         # Generate the response text
         message = render_template('issue.txt', username=username, project=project, issue=issue)
@@ -87,7 +89,7 @@ class Gitlab:
         # For now all tag messages go to #general to notify the whole team of the
         # new version
         channel = '#general'
-        if  project.get('namespace') and User.exists(project.get('namespace')):
+        if project.get('namespace') and User.findBy('gitlab_name', project.get('namespace')):
             # If the namespace is a slack user, we probably don't need to notify of a new
             # tag push
             return default_response()
