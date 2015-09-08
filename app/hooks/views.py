@@ -48,7 +48,8 @@ class Gitlab:
             channel = '@' + namespace_user.name
 
         for name in names:
-            if channel: break
+            if channel:
+                break
             channel = name if Channel.exists(name) else None
 
         # Get the user info
